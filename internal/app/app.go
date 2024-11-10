@@ -45,7 +45,7 @@ func (a *App) Run() {
 		a.Files = append(a.Files, Files{BaseURL: link, FileCount: len(files), Files: files})
 	}
 
-	if DirExists(downloadToFolder) {
+	if !DirExists(downloadToFolder) {
 		err := os.Mkdir(downloadToFolder, 0755)
 		if err != nil {
 			panic(err)
