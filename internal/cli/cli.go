@@ -16,7 +16,7 @@ import (
 	"github.com/jhonroun/cmrd/pkg/cmrd"
 )
 
-const Version = "0.1.0"
+const Version = "1.0.0"
 
 // Run executes CMRD CLI.
 func Run(ctx context.Context, args []string) error {

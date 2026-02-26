@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ "main", "master" ]
 
+permissions:
+  contents: write
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -28,3 +31,61 @@ jobs:
         uses: golangci/golangci-lint-action@v7
         with:
           version: v1.64.8
+
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: linux
+            arch: amd64
+            ext: ""
+          - os: linux
+            arch: arm64
+            ext: ""
+          - os: windows
+            arch: amd64
+            ext: ".exe"
+          - os: windows
+            arch: arm64
+            ext: ".exe"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Build cmrd
+        env:
+          GOOS: ${{ matrix.os }}
+          GOARCH: ${{ matrix.arch }}
+          CGO_ENABLED: 0
+        run: |
+          mkdir -p dist
+          go build -trimpath -ldflags="-s -w" -o "dist/cmrd-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }}" ./cmd/cmrd
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cmrd-${{ matrix.os }}-${{ matrix.arch }}
+          path: dist/cmrd-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }}
+
+  release:
+    runs-on: ubuntu-latest
+    needs: [test, lint, build]
+    if: github.event_name == 'push'
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: cmrd-*
+          merge-multiple: true
+          path: release
+      - name: Publish nightly release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: nightly
+          name: Nightly Build
+          prerelease: true
+          make_latest: false
+          files: release/*
+          overwrite_files: true

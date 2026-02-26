@@ -1,0 +1,19 @@
+# Build artifacts
+bin/
+dist/
+build/
+*.exe
+*.dll
+*.so
+*.dylib
+*.out
+*.test
+*.log
+
+# Private/local files not for public release
+test/
+AGENTS.md
+changelog.md
+LICENSE
+forLMT.md
+todo.md

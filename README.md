@@ -1,5 +1,8 @@
 # CMRD
 
+[![CI](https://github.com/jhonroun/cmrd/actions/workflows/ci.yml/badge.svg)](https://github.com/jhonroun/cmrd/actions/workflows/ci.yml)
+![Version](https://img.shields.io/badge/version-1.0.0-blue)
+
 Cloud.Mail public link downloader rewritten from PHP to idiomatic Go with CLI, TUI (Bubble Tea), gRPC API and library mode.
 
 Загрузчик публичных ссылок Cloud.Mail, переписанный с PHP на идиоматичный Go, с режимами CLI, TUI (Bubble Tea), gRPC API и библиотечным использованием.
