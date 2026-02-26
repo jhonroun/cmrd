@@ -48,6 +48,14 @@ func TestJoinPath(t *testing.T) {
 	}
 }
 
+func TestEncodeURLPath(t *testing.T) {
+	got := encodeURLPath("M3Yv/83McATjtK/[swband.co] 1 раздел/file name.txt")
+	want := "M3Yv/83McATjtK/%5Bswband.co%5D%201%20%D1%80%D0%B0%D0%B7%D0%B4%D0%B5%D0%BB/file%20name.txt"
+	if got != want {
+		t.Fatalf("encodeURLPath mismatch: got=%q want=%q", got, want)
+	}
+}
+
 func TestSanitizeWindowsPath(t *testing.T) {
 	got := sanitizeWindowsPath(`folder<bad>|name:?.txt`)
 	want := "folderbadname.txt"

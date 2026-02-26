@@ -18,15 +18,18 @@ type progressMsg struct {
 type streamClosedMsg struct{}
 
 type model struct {
-	bar      progress.Model
-	updates  <-chan cmrd.ProgressEvent
-	phase    string
-	message  string
-	percent  float64
-	total    int
-	showHelp bool
-	finished bool
-	err      error
+	bar       progress.Model
+	updates   <-chan cmrd.ProgressEvent
+	phase     string
+	message   string
+	percent   float64
+	total     int
+	doneFiles int
+	remaining int
+	current   string
+	showHelp  bool
+	finished  bool
+	err       error
 }
 
 func newModel(updates <-chan cmrd.ProgressEvent) model {
@@ -71,6 +74,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.phase = event.Phase
 		m.message = event.Message
 		m.total = event.TotalFiles
+		m.doneFiles = event.DoneFiles
+		m.remaining = event.RemainingFiles
+		m.current = event.CurrentFile
 		if event.Percent > 0 {
 			m.percent = event.Percent
 		}
@@ -94,6 +100,12 @@ func (m model) View() string {
 	hint := lipgloss.NewStyle().Foreground(lipgloss.Color("241")).Render("Keys: h/? help, q/Ctrl+C quit")
 	phase := fmt.Sprintf("Phase: %s", strings.ToUpper(m.phase))
 	total := fmt.Sprintf("Resolved files: %d", m.total)
+	downloaded := fmt.Sprintf("Downloaded files: %d", m.doneFiles)
+	remaining := fmt.Sprintf("Remaining files: %d", m.remaining)
+	current := fmt.Sprintf("Current file: %s", m.current)
+	if strings.TrimSpace(m.current) == "" {
+		current = "Current file: -"
+	}
 	progressValue := fmt.Sprintf("Progress: %.1f%%", m.percent)
 	status := fmt.Sprintf("Status: %s", m.message)
 
@@ -109,6 +121,9 @@ func (m model) View() string {
 		"",
 		phase,
 		total,
+		downloaded,
+		remaining,
+		current,
 		progressValue,
 		m.bar.ViewAs(m.percent / 100.0),
 		status,

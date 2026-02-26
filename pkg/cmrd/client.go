@@ -5,8 +5,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math"
 	"os"
 	"strings"
+	"sync"
 
 	"github.com/jhonroun/cmrd/internal/aria2"
 	"github.com/jhonroun/cmrd/internal/cloudmail"
@@ -93,9 +95,12 @@ func (c *Client) Download(ctx context.Context, links []string, onProgress Progre
 
 	if onProgress != nil {
 		onProgress(ProgressEvent{
-			Phase:      "resolve",
-			Message:    "resolve complete",
-			TotalFiles: len(files),
+			Phase:          "resolve",
+			Message:        "resolve complete",
+			TotalFiles:     len(files),
+			DoneFiles:      0,
+			RemainingFiles: len(files),
+			CurrentFile:    currentFileForIndex(files, 0),
 		})
 	}
 
@@ -136,23 +141,31 @@ func (c *Client) DownloadResolved(ctx context.Context, files []FileTask, onProgr
 
 	if onProgress != nil {
 		onProgress(ProgressEvent{
-			Phase:      "download",
-			Message:    "download started",
-			TotalFiles: len(files),
+			Phase:          "download",
+			Message:        "download started",
+			TotalFiles:     len(files),
+			DoneFiles:      0,
+			RemainingFiles: len(files),
+			CurrentFile:    currentFileForIndex(files, 0),
 		})
 	}
 
+	progress := newDownloadProgress(len(files))
 	err = c.runner.Run(ctx, tempPath, c.cfg.Proxy, c.cfg.ProxyAuth, func(event aria2.ProgressEvent) {
 		if onProgress == nil {
 			return
 		}
+		doneFiles, remainingFiles, currentFile := progress.update(event, files)
 		onProgress(ProgressEvent{
-			Phase:      event.Phase,
-			Percent:    event.Percent,
-			Message:    event.Message,
-			TotalFiles: len(files),
-			Done:       event.Done,
-			Err:        event.Err,
+			Phase:          event.Phase,
+			Percent:        event.Percent,
+			Message:        event.Message,
+			TotalFiles:     len(files),
+			DoneFiles:      doneFiles,
+			RemainingFiles: remainingFiles,
+			CurrentFile:    currentFile,
+			Done:           event.Done,
+			Err:            event.Err,
 		})
 	})
 	if err != nil {
@@ -161,12 +174,64 @@ func (c *Client) DownloadResolved(ctx context.Context, files []FileTask, onProgr
 
 	if onProgress != nil {
 		onProgress(ProgressEvent{
-			Phase:      "download",
-			Percent:    100,
-			Message:    "download completed",
-			TotalFiles: len(files),
-			Done:       true,
+			Phase:          "download",
+			Percent:        100,
+			Message:        "download completed",
+			TotalFiles:     len(files),
+			DoneFiles:      len(files),
+			RemainingFiles: 0,
+			Done:           true,
 		})
 	}
 	return nil
+}
+
+type downloadProgress struct {
+	mu       sync.Mutex
+	total    int
+	doneSeen int
+}
+
+func newDownloadProgress(total int) *downloadProgress {
+	return &downloadProgress{total: total}
+}
+
+func (p *downloadProgress) update(event aria2.ProgressEvent, files []FileTask) (int, int, string) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	if strings.Contains(strings.ToLower(event.Message), "download complete:") && p.doneSeen < p.total {
+		p.doneSeen++
+	}
+
+	doneFiles := p.doneSeen
+	if event.Percent > 0 {
+		estimated := int(math.Floor(event.Percent * float64(p.total) / 100.0))
+		if estimated > doneFiles {
+			doneFiles = estimated
+		}
+	}
+	if event.Done {
+		doneFiles = p.total
+	}
+	if doneFiles < 0 {
+		doneFiles = 0
+	}
+	if doneFiles > p.total {
+		doneFiles = p.total
+	}
+
+	remainingFiles := p.total - doneFiles
+	if remainingFiles < 0 {
+		remainingFiles = 0
+	}
+
+	return doneFiles, remainingFiles, currentFileForIndex(files, doneFiles)
+}
+
+func currentFileForIndex(files []FileTask, index int) string {
+	if index < 0 || index >= len(files) {
+		return ""
+	}
+	return files[index].Output
 }

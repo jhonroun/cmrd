@@ -208,7 +208,7 @@ func (r *Resolver) walkFolder(ctx context.Context, linkID string, parentFolder s
 	for _, item := range response.Body.List {
 		switch item.Type {
 		case "folder":
-			childLink := joinPath(linkID, url.PathEscape(item.Name))
+			childLink := joinPath(linkID, item.Name)
 			childFiles, err := r.walkFolder(ctx, childLink, currentFolder, pageID, baseURL)
 			if err != nil {
 				return nil, err
@@ -216,7 +216,7 @@ func (r *Resolver) walkFolder(ctx context.Context, linkID string, parentFolder s
 			files = append(files, childFiles...)
 		default:
 			outputPath := sanitizeWindowsPath(joinPath(currentFolder, item.Name))
-			directURL := strings.TrimRight(baseURL, "/") + "/" + joinPath(linkID, url.PathEscape(item.Name))
+			directURL := strings.TrimRight(baseURL, "/") + "/" + encodeURLPath(joinPath(linkID, item.Name))
 			files = append(files, File{
 				URL:    directURL,
 				Output: outputPath,
@@ -260,6 +260,18 @@ func joinPath(parts ...string) string {
 		}
 	}
 	return strings.Join(normalized, "/")
+}
+
+func encodeURLPath(path string) string {
+	parts := strings.Split(path, "/")
+	encoded := make([]string, 0, len(parts))
+	for _, part := range parts {
+		if part == "" {
+			continue
+		}
+		encoded = append(encoded, url.PathEscape(part))
+	}
+	return strings.Join(encoded, "/")
 }
 
 func sanitizeWindowsPath(value string) string {
