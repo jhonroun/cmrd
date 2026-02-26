@@ -203,7 +203,7 @@ Usage:
 Commands:
   resolve      Resolve Cloud.Mail public links to direct file URLs
   download     Resolve links and start download with aria2c
-  serve-grpc   Start gRPC API server for external GUI/WebUI clients
+  serve-grpc   Start gRPC API server (experimental; not fully tested)
   version      Print version
   help         Show this help
 
@@ -243,6 +243,9 @@ Flags:
 
 const serveGRPCHelpText = `Usage:
   cmrd serve-grpc [flags]
+
+Note:
+  gRPC mode is experimental and not fully tested yet.
 
 Flags:
   --listen string      Listen address (default ":50051")
