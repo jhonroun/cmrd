@@ -3,8 +3,10 @@ name: ci
 on:
   push:
     branches: [ "main", "master" ]
+    tags: [ "v*" ]
   pull_request:
     branches: [ "main", "master" ]
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -30,7 +32,7 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v7
         with:
-          version: v1.64.8
+          version: latest
 
   build:
     runs-on: ubuntu-latest
@@ -83,9 +85,9 @@ jobs:
       - name: Publish nightly release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: nightly
-          name: Nightly Build
-          prerelease: true
+          tag_name: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || 'nightly' }}
+          name: ${{ startsWith(github.ref, 'refs/tags/v') && format('Release {0}', github.ref_name) || 'Nightly Build' }}
+          prerelease: ${{ !startsWith(github.ref, 'refs/tags/v') }}
           make_latest: false
           files: release/*
           overwrite_files: true
