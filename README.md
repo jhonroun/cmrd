@@ -2,6 +2,9 @@
 
 [![CI](https://github.com/jhonroun/cmrd/actions/workflows/ci.yml/badge.svg)](https://github.com/jhonroun/cmrd/actions/workflows/ci.yml)
 ![Version](https://img.shields.io/badge/version-1.0.0-blue)
+[![Releases](https://img.shields.io/github/v/release/jhonroun/cmrd?display_name=tag)](https://github.com/jhonroun/cmrd/releases)
+
+![CMRD Screenshot](screenshots/test.png)
 
 Cloud.Mail public link downloader rewritten from PHP to idiomatic Go with CLI, TUI (Bubble Tea), gRPC API and library mode.
 
@@ -18,6 +21,7 @@ Cкачивание из облака [Mail.Ru](http://cloud.mail.ru/) по пу
 - Можно легко докрутить GUI...
 
 ## Documentation / Документация
+- Releases: `https://github.com/jhonroun/cmrd/releases`
 - English docs: `doc/en/README.md`
 - Русская документация: `doc/ru/README.md`
 - English CLI: `doc/en/CLI.md`
