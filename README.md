@@ -7,6 +7,16 @@ Cloud.Mail public link downloader rewritten from PHP to idiomatic Go with CLI, T
 
 Загрузчик публичных ссылок Cloud.Mail, переписанный с PHP на идиоматичный Go, с режимами CLI, TUI (Bubble Tea), gRPC API и библиотечным использованием.
 
+# Cloud&#64;Mail.Ru Downloader
+
+Cкачивание из облака [Mail.Ru](http://cloud.mail.ru/) по публичной ссылки. Авторизация в Mail.Ru не требуется.
+
+- Приложение компилировалось под Windows, но должно по идее работать на всех платформах.
+- За идею и основу взято [Cloud Mail.Ru Downloader](https://github.com/Geograph-us/Cloud-Mail.Ru-Downloader/).
+- Скрипт умеет корректно обрабатывать папки в облаке любой вложенности.
+- Поддерживается докачка файлов.
+- Можно легко докрутить GUI...
+
 ## Documentation / Документация
 - English docs: `doc/en/README.md`
 - Русская документация: `doc/ru/README.md`
@@ -17,6 +27,10 @@ Cloud.Mail public link downloader rewritten from PHP to idiomatic Go with CLI, T
 
 ## English Summary
 CMRD resolves Cloud.Mail public links into direct file URLs, prepares aria2c input, and runs multi-file downloads with resumable behavior.
+
+## Aria2c
+
+`aria2c.exe` can be find at reference cataloge.
 
 ### Quick Start (EN)
 1. Build CLI:
@@ -39,6 +53,10 @@ CMRD resolves Cloud.Mail public links into direct file URLs, prepares aria2c inp
 
 ## Краткое описание на русском
 CMRD преобразует публичные ссылки Cloud.Mail в прямые URL файлов, формирует вход для aria2c и запускает многопоточную загрузку с поддержкой докачки.
+
+## Aria2c
+
+`aria2c.exe` в каталоге refence
 
 ### Quick Start (RU)
 1. Соберите CLI:
