@@ -29,6 +29,26 @@ Cкачивание из облака [Mail.Ru](http://cloud.mail.ru/) по пу
 - English gRPC: `doc/en/GRPC.md`
 - Русский gRPC: `doc/ru/GRPC.md`
 
+## Install
+### Linux (wget + chmod + mv to sbin)
+1. Download binary (choose amd64 or arm64):
+   - `wget -O cmrd https://github.com/jhonroun/cmrd/releases/latest/download/cmrd-linux-amd64`
+2. Make executable:
+   - `chmod +x cmrd`
+3. Move to `/usr/sbin`:
+   - `sudo mv cmrd /usr/sbin/cmrd`
+4. Run from anywhere:
+   - `cmrd --help`
+
+### Windows (via eget)
+1. Install `eget`:
+   - `winget install zyedidia.eget`
+2. Download CMRD to system path as `cmrd.exe`:
+   - `eget jhonroun/cmrd --asset "cmrd-windows-amd64.exe" --to "C:\Windows\System32\cmrd.exe"`
+   - ARM64: `eget jhonroun/cmrd --asset "cmrd-windows-arm64.exe" --to "C:\Windows\System32\cmrd.exe"`
+3. Verify:
+   - `cmrd --help`
+
 ## English Summary
 CMRD resolves Cloud.Mail public links into direct file URLs, prepares aria2c input, and runs multi-file downloads with resumable behavior.
 
